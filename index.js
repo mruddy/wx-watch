@@ -38,7 +38,7 @@ function forkWeatherDataGatheringProcess() {
     if (msg) {
       wx = msg;
       wx.instant = new Date().getTime();
-      console.log('update received ' + new Date(wx.instant).toISOString());
+      // console.log('update received ' + new Date(wx.instant).toISOString());
       // tell all of the connected clients about the update
       Object.keys(io.sockets.connected).forEach(function(socketIndex, arrIndex, arr) {
         io.sockets.connected[socketIndex].volatile.emit('wx', wx);
