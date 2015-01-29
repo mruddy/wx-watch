@@ -53,8 +53,8 @@ var start = function() {
         var speed = data[15];
         var windDirection = (data[18] << 8) | data[17];
         var wx = {outsideTemperature: outsideTemp, windSpeed: speed, windDirectionDegrees: windDirection, instant: new Date().getTime()};
-        // process.send(wx);
-        console.log(wx);
+        process.send(wx);
+        // console.log(wx);
         wakeupCount = 0;
         setTimeout(wakeup, 2000);
       } else {
