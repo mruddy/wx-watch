@@ -64,6 +64,6 @@ var socket = require('net').connect({ port: destPort, host: destHost} , function
     setTimeout(wakeup, 2000);
   }
 }).on('error', function(err) {
-  console.log(new Date().toISOString() + ',socket error,code=' + err.code);
+  console.log(new Date().toISOString() + ',socket error,err=' + err + ',code=' + err.code);
 });
 
