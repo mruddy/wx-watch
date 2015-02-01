@@ -79,6 +79,6 @@ var wakeup = function() {
   }
 };
 
-console.log('station process created. destHost=' + destHost + ' destPort=' + destPort);
+console.log(new Date().toISOString() + ',station process created,destHost=' + destHost + ',destPort=' + destPort);
 start();
 

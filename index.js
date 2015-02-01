@@ -25,20 +25,19 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var wx;
 
-function forkWeatherDataGatheringProcess() {
+var forkWeatherDataGatheringProcess = function() {
   var host = process.env.WX_HOST;
   var port = process.env.WX_PORT;
-  console.log('forkWeatherDataGatheringProcess host=' + host + ' port=' + port);
+  console.log(new Date().toISOString() + ',forkWeatherDataGatheringProcess,host=' + host + ',port=' + port);
   require('child_process').fork('./station.js', [host, port])
   .on('exit', function(code, signal) {
-    console.log('weatherDataGatheringProcess exit ' + code + ' ' + signal);
+    console.log(new Date().toISOString() + ',weatherDataGatheringProcess,exit=' + code + ',signal=' + signal);
     setTimeout(forkWeatherDataGatheringProcess, 1000);
   })
   .on('message', function(msg) {
-    if (msg) {
+    if (msg && msg.instant) {
       wx = msg;
-      wx.instant = new Date().getTime();
-      // console.log('update received ' + new Date(wx.instant).toISOString());
+      console.log(new Date().toISOString() + ',update received,instant=' + new Date(wx.instant).toISOString());
       // tell all of the connected clients about the update
       Object.keys(io.sockets.connected).forEach(function(socketIndex, arrIndex, arr) {
         io.sockets.connected[socketIndex].volatile.emit('wx', wx);
