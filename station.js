@@ -59,11 +59,11 @@ var socket = require('net').connect({ port: destPort, host: destHost} , function
     // this is a LOOP2 response. 0x6 is the ack byte.
     var wx = {
       ot: ((buf[14] << 8) | buf[13]) / 10, // outside temperature in 1/10 degree F
-      ws: buf[15], // wind speed in MPH
-      wd: (buf[18] << 8) | buf[17], // wind direction in degrees
-      wgs: ((buf[24] << 8) | buf[23]) / 10, // 10-min wind gust speed 0.1 MPH
-      wgd: (buf[26] << 8) | buf[25], // 10-min wind gust direction
-      oh: buf[34], // outside humidity
+      ws: buf.readUInt8(15), // wind speed in MPH
+      wd: buf.readUInt16LE(17), // wind direction in degrees
+      wgs: buf.readUInt16LE(23), // 10-min wind gust speed 0.1 MPH
+      wgd: buf.readUInt16LE(25), // 10-min wind gust direction in degrees
+      oh: buf.readUInt8(34), // outside humidity
       instant: new Date().getTime()
     };
     process.send(wx);
