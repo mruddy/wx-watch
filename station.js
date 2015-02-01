@@ -55,13 +55,13 @@ var socket = require('net').connect({ port: destPort, host: destHost} , function
   consecutiveWakeups = 0;
   if (buf && (2 === buf.length) && (0xa === buf[0]) && (0xd === buf[1])) {
     socket.write('LPS 2 1\n'); // request sensor data from the weather station
-  } else if (buf && (100 === buf.length) && (0x06 === buf[0]) && (0x4c === buf[1]) && (0x4f === buf[2]) && (0x4f === buf[3]) && (0x01 === buf[5]) && (0xff === buf[6]) && (0x7f === buf[7])) {
+  } else if (buf && (100 === buf.length) && (0x06 === buf[0]) && (0x4c === buf[1]) && (0x4f === buf[2]) && (0x4f === buf[3]) && (0x01 === buf[5]) && (0x7fff === buf.readUInt16LE(6))) {
     // this is a LOOP2 response. 0x6 is the ack byte.
     var wx = {
-      ot: ((buf[14] << 8) | buf[13]) / 10, // outside temperature in 1/10 degree F
+      ot: buf.readUInt16LE(13) / 10, // outside temperature in 1/10 degree F
       ws: buf.readUInt8(15), // wind speed in MPH
       wd: buf.readUInt16LE(17), // wind direction in degrees
-      wgs: buf.readUInt16LE(23), // 10-min wind gust speed 0.1 MPH
+      wgs: buf.readUInt16LE(23), // 10-min wind gust speed in MPH
       wgd: buf.readUInt16LE(25), // 10-min wind gust direction in degrees
       oh: buf.readUInt8(34), // outside humidity
       instant: new Date().getTime()
