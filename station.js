@@ -67,6 +67,12 @@ var start = function() {
       wakeup();
     }
   });
+  socket.on('error', function(err) {
+    console.log('got error ' + err);
+  });
+  socket.on('close', function(err) {
+    console.log('got close ' + err);
+  });
 };
 
 var wakeup = function() {
