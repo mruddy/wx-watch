@@ -34,11 +34,13 @@ var closeSocket = function() {
 };
 
 var wakeup = function() {
-  socket.write('\n'); // try to awaken the console
-  socket.setTimeout(1200); // give it 1.2 seconds to respond
-  consecutiveWakeups++;
-  if (consecutiveWakeups > 3) {
-    closeSocket();
+  if (socket) {
+    socket.write('\n'); // try to awaken the console
+    socket.setTimeout(1200); // give it 1.2 seconds to respond
+    consecutiveWakeups++;
+    if (consecutiveWakeups > 3) {
+      closeSocket();
+    }
   }
 };
 
@@ -46,13 +48,9 @@ console.log(new Date().toISOString() + ',station process created,destHost=' + de
 
 var socket = require('net').connect({ port: destPort, host: destHost} , function() {
   wakeup();
-});
-
-socket.on('timeout', function() {
+}).on('timeout', function() {
   wakeup();
-});
-
-socket.on('data', function(data) {
+}).on('data', function(data) {
   consecutiveWakeups = 0;
   if (data && (2 === data.length) && (0xa === data[0]) && (0xd === data[1])) {
     socket.write('LPS 2 1\n'); // request sensor data from the weather station
@@ -65,5 +63,7 @@ socket.on('data', function(data) {
     process.send(wx);
     setTimeout(wakeup, 2000);
   }
+}).on('error', function(err) {
+  console.log(new Date().toISOString() + ',socket error,code=' + err.code);
 });
 
