@@ -22,6 +22,7 @@
 
 // this code is designed to communicate with a Davis Wireless Vantage Pro2 (Part #: 06152) or Davis Vantage VUE (Part #: 06357) via a Davis WeatherLinkIP for Vantage Stations (Part #: 06555)
 // protocol specification: http://www.davisnet.com/support/weather/download/VantageSerialProtocolDocs_v261.pdf
+// according to the spec: "The LOOP2 packet is NOT supported in Vantage Pro and only supported in Vantage Pro2 (Firmware 1.90 or later) and Vantage Vue."
 var destHost = process.argv[2];
 var destPort = process.argv[3];
 var consecutiveWakeups = 0;
@@ -44,26 +45,31 @@ var wakeup = function() {
   }
 };
 
-console.log(new Date().toISOString() + ',station process created,destHost=' + destHost + ',destPort=' + destPort);
+console.log(new Date().toISOString() + ', station process created, destHost=' + destHost + ', destPort=' + destPort);
 
 var socket = require('net').connect({ port: destPort, host: destHost} , function() {
   wakeup();
 }).on('timeout', function() {
   wakeup();
-}).on('data', function(data) {
+}).on('data', function(buf) {
   consecutiveWakeups = 0;
-  if (data && (2 === data.length) && (0xa === data[0]) && (0xd === data[1])) {
+  if (buf && (2 === buf.length) && (0xa === buf[0]) && (0xd === buf[1])) {
     socket.write('LPS 2 1\n'); // request sensor data from the weather station
-  } else if (data && (100 === data.length) && (0x06 === data[0]) && (0x4c === data[1]) && (0x4f === data[2]) && (0x4f === data[3]) && (0x01 === data[5]) && (0xff === data[6]) && (0x7f === data[7])) {
+  } else if (buf && (100 === buf.length) && (0x06 === buf[0]) && (0x4c === buf[1]) && (0x4f === buf[2]) && (0x4f === buf[3]) && (0x01 === buf[5]) && (0xff === buf[6]) && (0x7f === buf[7])) {
     // this is a LOOP2 response. 0x6 is the ack byte.
-    var outsideTemp = ((data[14] << 8) | data[13]) / 10;
-    var speed = data[15];
-    var windDirection = (data[18] << 8) | data[17];
-    var wx = {outsideTemperature: outsideTemp, windSpeed: speed, windDirectionDegrees: windDirection, instant: new Date().getTime()};
+    var wx = {
+      ot: ((buf[14] << 8) | buf[13]) / 10, // outside temperature in 1/10 degree F
+      ws: buf[15], // wind speed in MPH
+      wd: (buf[18] << 8) | buf[17], // wind direction in degrees
+      wgs: ((buf[24] << 8) | buf[23]) / 10, // 10-min wind gust speed 0.1 MPH
+      wgd: (buf[26] << 8) | buf[25], // 10-min wind gust direction
+      oh: buf[34], // outside humidity
+      instant: new Date().getTime()
+    };
     process.send(wx);
-    setTimeout(wakeup, 2000);
+    socket.setTimeout(2000); // basically, wait until the next polling interval
   }
 }).on('error', function(err) {
-  console.log(new Date().toISOString() + ',socket error,err=' + err + ',code=' + err.code);
+  console.log(new Date().toISOString() + ', socket error, err=' + err + ', code=' + err.code);
 });
 
