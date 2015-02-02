@@ -49,7 +49,7 @@ var forkStationProcess = function() {
 io.on('connection', function(socket) {
   // always give the client the latest data on connect
   if (wx) {
-    socket.volatile.emit('wx', wx);
+    socket.emit('wx', wx);
   }
 });
 
