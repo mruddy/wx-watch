@@ -66,7 +66,11 @@ var socket = require('net').connect({ port: destPort, host: destHost} , function
       oh: buf.readUInt8(34), // outside humidity
       instant: new Date().getTime()
     };
-    process.send(wx);
+    if (0 < wx.wgd && wx.wgd < 361) {
+      process.send(wx);
+    } else {
+      console.log(new Date().toISOString() + ', data error, wx=' + wx);
+    }
     socket.setTimeout(2000); // basically, wait until the next polling interval
   }
 }).on('error', function(err) {
