@@ -69,7 +69,7 @@ var socket = require('net').connect({ port: destPort, host: destHost} , function
     if (0 < wx.wgd && wx.wgd < 361) {
       process.send(wx);
     } else {
-      console.log(new Date().toISOString() + ', data error, wx=' + wx);
+      console.log(new Date().toISOString() + ', data error, wx.wgd=' + wx.wgd);
     }
     socket.setTimeout(2000); // basically, wait until the next polling interval
   }
