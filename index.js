@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2015 mruddy
+// Copyright (c) 2015-2020 mruddy
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-var app = require('express')();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+const app = require('express')();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 var wx = null;
 
-var forkStationProcess = function() {
-  var host = process.env.WX_HOST;
-  var port = process.env.WX_PORT;
+const forkStationProcess = function() {
+  const host = process.env.WX_HOST;
+  const port = process.env.WX_PORT;
   console.log(new Date().toISOString() + ', forking station process, host=' + host + ', port=' + port);
   require('child_process').fork('./station.js', [host, port])
   .on('exit', function(code, signal) {
