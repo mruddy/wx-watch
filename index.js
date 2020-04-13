@@ -53,6 +53,6 @@ io.on('connection', function(socket) {
   }
 });
 
-server.listen(8080, 'localhost');
+server.listen(8080, process.argv[2]);
 forkStationProcess();
 
