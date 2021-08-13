@@ -39,8 +39,8 @@ const forkStationProcess = function() {
       wx = msg;
       console.log(new Date().toISOString() + ', update received, instant=' + new Date(wx.instant).toISOString());
       // tell all of the connected clients about the update
-      Object.keys(io.sockets.sockets).forEach(function(socketIndex, arrIndex, arr) {
-        io.sockets.connected[socketIndex].volatile.emit('wx', wx);
+      io.sockets.sockets.forEach((value) => {
+        value.volatile.emit('wx', wx);
       });
     }
   });
